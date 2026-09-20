@@ -26,6 +26,8 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 
+__version__ = "0.1.0"
+
 MAGIC = b"AESC"
 VERSION = 1
 SALT_SIZE = 16
@@ -176,6 +178,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="aescrypt.py",
         description="Encrypt/decrypt files with AES-256-GCM using a passphrase.",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 

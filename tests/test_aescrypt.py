@@ -6,7 +6,15 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from aescrypt import encrypt_bytes, decrypt_bytes, DecryptionError, HEADER_STRUCT, _get_passphrase
+from aescrypt import (
+    encrypt_bytes,
+    decrypt_bytes,
+    DecryptionError,
+    HEADER_STRUCT,
+    _get_passphrase,
+    build_parser,
+    __version__,
+)
 
 
 class TestAesCrypt(unittest.TestCase):
@@ -116,6 +124,20 @@ class TestAesCrypt(unittest.TestCase):
         wrong_passphrase = "correct-cheval-batterie-étoile-☄".encode("utf-8")
         with self.assertRaises(DecryptionError):
             decrypt_bytes(ciphertext_file, wrong_passphrase)
+
+    def test_version_flag_prints_version_and_exits(self):
+        """`--version` should print the current version and exit 0,
+        without requiring a subcommand."""
+        import io
+        import contextlib
+
+        parser = build_parser()
+        buf = io.StringIO()
+        with self.assertRaises(SystemExit) as ctx:
+            with contextlib.redirect_stdout(buf):
+                parser.parse_args(["--version"])
+        self.assertEqual(ctx.exception.code, 0)
+        self.assertIn(__version__, buf.getvalue())
 
     def test_empty_passphrase_flag_is_rejected(self):
         """`--passphrase ''` must be rejected up front instead of silently
