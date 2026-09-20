@@ -136,8 +136,8 @@ Tests cover:
 - Large file (multi-megabyte) round-trips
 - Salt/nonce uniqueness across separate encryption calls
 
-Continuous integration runs this same test suite on Python 3.11 and 3.12
-via GitHub Actions (see `.github/workflows/tests.yml`).
+Continuous integration runs this same test suite on Python 3.11, 3.12,
+and 3.13 via GitHub Actions (see `.github/workflows/tests.yml`).
 
 ## Troubleshooting / FAQ
 
