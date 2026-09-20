@@ -6,7 +6,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from aescrypt import encrypt_bytes, decrypt_bytes, DecryptionError, HEADER_STRUCT
+from aescrypt import encrypt_bytes, decrypt_bytes, DecryptionError, HEADER_STRUCT, _get_passphrase
 
 
 class TestAesCrypt(unittest.TestCase):
@@ -116,6 +116,17 @@ class TestAesCrypt(unittest.TestCase):
         wrong_passphrase = "correct-cheval-batterie-étoile-☄".encode("utf-8")
         with self.assertRaises(DecryptionError):
             decrypt_bytes(ciphertext_file, wrong_passphrase)
+
+    def test_empty_passphrase_flag_is_rejected(self):
+        """`--passphrase ''` must be rejected up front instead of silently
+        encrypting with no real protection."""
+
+        class FakeArgs:
+            passphrase = ""
+
+        with self.assertRaises(SystemExit) as ctx:
+            _get_passphrase(FakeArgs(), confirm=False)
+        self.assertEqual(ctx.exception.code, 1)
 
 
 if __name__ == "__main__":

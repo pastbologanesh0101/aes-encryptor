@@ -104,6 +104,13 @@ def decrypt_bytes(data: bytes, passphrase: bytes) -> bytes:
 
 def _get_passphrase(args, confirm: bool) -> bytes:
     if args.passphrase is not None:
+        if not args.passphrase:
+            print(
+                "Error: passphrase must not be empty "
+                "(--passphrase '' provides no protection).",
+                file=sys.stderr,
+            )
+            sys.exit(1)
         return args.passphrase.encode("utf-8")
     passphrase = getpass.getpass("Passphrase: ")
     if confirm:
