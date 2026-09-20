@@ -87,6 +87,36 @@ class TestAesCrypt(unittest.TestCase):
         with self.assertRaises(DecryptionError):
             decrypt_bytes(b"not a real encrypted file", b"any-passphrase")
 
+    def test_decrypt_rejects_truncated_ciphertext(self):
+        """A file with a valid header but a ciphertext shorter than the
+        16-byte GCM auth tag must be rejected explicitly, not passed to
+        the AEAD layer to fail in a less clear way."""
+        plaintext = b"short"
+        passphrase = b"truncate-test-pass"
+        full_file = encrypt_bytes(plaintext, passphrase)
+
+        # Keep the header intact but cut the ciphertext down to fewer than
+        # 16 bytes (smaller than the GCM auth tag alone).
+        truncated = full_file[: HEADER_STRUCT.size + 8]
+
+        with self.assertRaises(DecryptionError):
+            decrypt_bytes(truncated, passphrase)
+
+    def test_roundtrip_with_unicode_passphrase(self):
+        """Passphrases containing non-ASCII characters must round-trip
+        correctly, since the CLI encodes user input as UTF-8."""
+        plaintext = b"data protected by a non-ascii passphrase"
+        passphrase = "correct-cheval-batterie-étoile-☃".encode("utf-8")
+
+        ciphertext_file = encrypt_bytes(plaintext, passphrase)
+        recovered = decrypt_bytes(ciphertext_file, passphrase)
+        self.assertEqual(recovered, plaintext)
+
+        # A different unicode passphrase must still fail cleanly.
+        wrong_passphrase = "correct-cheval-batterie-étoile-☄".encode("utf-8")
+        with self.assertRaises(DecryptionError):
+            decrypt_bytes(ciphertext_file, wrong_passphrase)
+
 
 if __name__ == "__main__":
     unittest.main()
