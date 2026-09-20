@@ -139,6 +139,37 @@ Tests cover:
 Continuous integration runs this same test suite on Python 3.11 and 3.12
 via GitHub Actions (see `.github/workflows/tests.yml`).
 
+## Troubleshooting / FAQ
+
+**"Error: Decryption failed: wrong passphrase or corrupted/tampered file."**
+This message is intentionally the same for both causes — AES-GCM cannot
+tell "wrong key" apart from "tampered ciphertext," since both fail the
+same authentication tag check. Double-check the passphrase first (it's
+by far the more common cause); if you're sure it's correct, the file may
+have been truncated or modified (e.g. by a text-mode file transfer that
+mangled newlines).
+
+**`ModuleNotFoundError: No module named 'cryptography'`**
+Install dependencies before running the tool: `pip install -r
+requirements.txt`. If you have multiple Python installations, make sure
+you're using the same interpreter for `pip install` and for running
+`aescrypt.py` (a virtualenv is the easiest way to guarantee this).
+
+**"Error: File is too short to be a valid encrypted file." / "Not a
+recognized aescrypt file (bad magic bytes)."**
+You're pointing `decrypt` at something that isn't an aescrypt output
+file (or it got truncated). Encrypted files always start with the 4-byte
+magic `AESC`; if that's missing or the file is shorter than the fixed
+38-byte header, decryption is rejected before it even attempts to derive
+a key.
+
+**Why not scrypt or Argon2 for key derivation?**
+PBKDF2-HMAC-SHA256 ships in the `cryptography` package with no extra
+native dependencies, which keeps installation trivial on any platform.
+Argon2/scrypt are generally preferred for new designs, but the format's
+`KDF ID` byte was added specifically so a future version could add
+support for them without breaking existing encrypted files.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
