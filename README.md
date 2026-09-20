@@ -12,6 +12,19 @@ passphrase.
 > [age](https://github.com/FiloSottile/age) or
 > [GnuPG (gpg)](https://gnupg.org/) instead.
 
+## Table of contents
+
+- [Design](#design)
+  - [Key derivation](#key-derivation)
+  - [Encryption](#encryption)
+  - [File format](#file-format)
+  - [Failure behavior](#failure-behavior)
+- [Requirements](#requirements)
+- [Usage](#usage)
+- [Running the tests](#running-the-tests)
+- [Troubleshooting / FAQ](#troubleshooting--faq)
+- [License](#license)
+
 ## Design
 
 ### Key derivation
